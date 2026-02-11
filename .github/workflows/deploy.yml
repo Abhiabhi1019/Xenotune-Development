@@ -10,33 +10,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
+      # 1️⃣ Checkout full repository (IMPORTANT)
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # 2️⃣ Login to Docker Hub
+      # 2️⃣ Set up Docker Buildx (stable CI builds)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3️⃣ Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3️⃣ Build Docker image
+      # 4️⃣ Build Docker image (explicit context + dockerfile)
       - name: Build Docker image
         run: |
-          docker build \
+          docker buildx build \
+            --load \
             -t xeno2025/xenotune-backend:1.0.0 \
             -t xeno2025/xenotune-backend:latest \
             -f backend/Dockerfile \
             backend
 
-      # 4️⃣ Push Docker image
+      # 5️⃣ Push Docker image
       - name: Push Docker image
         run: |
           docker push xeno2025/xenotune-backend:1.0.0
           docker push xeno2025/xenotune-backend:latest
 
-      # 5️⃣ Deploy to EC2
+      # 6️⃣ Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
