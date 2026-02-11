@@ -1,40 +1,52 @@
+# -------------------------
 # Git
+# -------------------------
 .git
 .gitignore
 
+# -------------------------
 # Python
+# -------------------------
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 
-# Virtual env
+# -------------------------
+# Virtual environments
+# -------------------------
+.venv/
 venv/
 .env
 
-<<<<<<< HEAD
-# Secrets ONLY
+# -------------------------
+# Secrets (NEVER commit)
+# -------------------------
+backend/secrets/*.json
 secrets/*.json
 
-# Runtime output
-=======
-# Secrets (only secrets)
-secrets/*.json
-
-# Audio output
->>>>>>> be6d051c (fix: correct config.json COPY path for Docker build)
+# -------------------------
+# Audio / Generated Output
+# -------------------------
 output/
 *.wav
 *.mp3
 *.mid
 
-# Build/cache
+# -------------------------
+# Soundfonts (mounted at runtime)
+# -------------------------
+soundfonts/
+*.sf2
+
+# -------------------------
+# Build / cache
+# -------------------------
 build/
 dist/
 .cache/
 
+# -------------------------
 # Docker
+# -------------------------
 docker-compose*.yml
-<<<<<<< HEAD
-=======
-
->>>>>>> be6d051c (fix: correct config.json COPY path for Docker build)
