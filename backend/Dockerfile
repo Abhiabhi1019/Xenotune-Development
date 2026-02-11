@@ -49,11 +49,7 @@ RUN mkdir -p /app/data
 
 COPY --from=builder /python-deps /usr/local/lib/python3.11/site-packages
 COPY app/ /app/app
-<<<<<<< HEAD
-COPY  ./config.json /app/data/config.json
-=======
 COPY ./config.json /app/data/config.json
->>>>>>> be6d051c (fix: correct config.json COPY path for Docker build)
 
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
