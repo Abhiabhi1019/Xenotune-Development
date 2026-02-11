@@ -11,10 +11,17 @@ __pycache__/
 venv/
 .env
 
+<<<<<<< HEAD
 # Secrets ONLY
 secrets/*.json
 
 # Runtime output
+=======
+# Secrets (only secrets)
+secrets/*.json
+
+# Audio output
+>>>>>>> be6d051c (fix: correct config.json COPY path for Docker build)
 output/
 *.wav
 *.mp3
@@ -27,3 +34,7 @@ dist/
 
 # Docker
 docker-compose*.yml
+<<<<<<< HEAD
+=======
+
+>>>>>>> be6d051c (fix: correct config.json COPY path for Docker build)
