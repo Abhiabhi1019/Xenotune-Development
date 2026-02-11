@@ -10,24 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout full repository (IMPORTANT)
+      # 1️⃣ Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2️⃣ Set up Docker Buildx (stable CI builds)
+      # 2️⃣ Setup Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3️⃣ Login to Docker Hub
+      # 3️⃣ Login to Docker Hub (CI)
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 4️⃣ Build Docker image (explicit context + dockerfile)
+      # 4️⃣ Build image
       - name: Build Docker image
         run: |
           docker buildx build \
@@ -37,7 +37,7 @@ jobs:
             -f backend/Dockerfile \
             backend
 
-      # 5️⃣ Push Docker image
+      # 5️⃣ Push image
       - name: Push Docker image
         run: |
           docker push xeno2025/xenotune-backend:1.0.0
@@ -51,5 +51,21 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu
-            ./deploy.sh
+            # Login to Docker Hub on EC2
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+            # Pull latest image
+            docker pull xeno2025/xenotune-backend:latest
+
+            # Stop old container
+            docker stop xenotune-backend || true
+            docker rm xenotune-backend || true
+
+            # Run new container
+            docker run -d \
+              --name xenotune-backend \
+              -p 8000:8000 \
+              -v /opt/soundfonts:/soundfonts:ro \
+              -v /home/ubuntu/serviceAccountKey.json:/run/secrets/firebase_key:ro \
+              --restart always \
+              xeno2025/xenotune-backend:latest
