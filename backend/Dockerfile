@@ -1,61 +1,59 @@
-FROM python:3.11-slim
+# ============================
+# STAGE 1: Python Builder
+# ============================
+FROM python:3.11-slim AS builder
 
-# -------------------------------
-# 1. System dependencies
-# -------------------------------
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    fluidsynth \
-    fluid-soundfont-gm \
+ENV MUSIC21_DISABLE_CORPUS_LOADING=true
+ENV MUSIC21_DISABLE_DOWNLOADS=true
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-# -------------------------------
-# 2. Pip hardening
-# -------------------------------
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PIP_DEFAULT_TIMEOUT=100
+COPY requirements.txt .
 
-# -------------------------------
-# 3. Create non-root user
-# -------------------------------
-RUN useradd -m appuser
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir \
+       torch==2.7.1+cpu \
+       --index-url https://download.pytorch.org/whl/cpu \
+       --target=/python-deps \
+    && pip install --no-cache-dir \
+       -r requirements.txt \
+       --target=/python-deps \
+    \
+    && rm -rf /root/.cache /root/.local /root/.music21 \
+    && find /python-deps -type d -name ".cache" -exec rm -rf {} +
 
-# -------------------------------
-# 4. Working directory
-# -------------------------------
+# ============================
+# STAGE 2: Runtime (LEAN)
+# ============================
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV MUSIC21_DISABLE_CORPUS_LOADING=true
+ENV MUSIC21_DISABLE_DOWNLOADS=true
+
 WORKDIR /app
 
-# -------------------------------
-# 5. Install dependencies
-# -------------------------------
-COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir --retries 10 -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    fluidsynth \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
 
-# -------------------------------
-# 6. Copy application code
-# -------------------------------
-COPY app/ app/
+RUN mkdir -p /app/data
+
+COPY --from=builder /python-deps /usr/local/lib/python3.11/site-packages
+COPY app/ /app/app
 COPY config.json /app/data/config.json
 
-# -------------------------------
-# 7. Fix ownership (CRITICAL)
-# -------------------------------
-RUN mkdir -p /app/data && \
-    chown -R appuser:appuser /app
-
-# -------------------------------
-# 8. Drop root privileges
-# -------------------------------
+RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
-# -------------------------------
-# 9. Expose API port
-# -------------------------------
 EXPOSE 8000
 
-# -------------------------------
-# 10. Start FastAPI
-# -------------------------------
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

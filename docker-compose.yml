@@ -2,15 +2,17 @@ services:
   backend:
     container_name: xenotune-backend
     image: xenotune-backend:prod
-
     build:
       context: ./backend
       dockerfile: Dockerfile
 
+
     ports:
       - "8000:8000"
 
-    # ✅ Docker Secrets (SECURE)
+    volumes:
+      - /home/abhi/soundfonts:/soundfonts:ro
+
     secrets:
       - firebase_key
 
@@ -21,8 +23,6 @@ services:
 
     restart: always
 
-
-# 🔐 Secrets definition
 secrets:
   firebase_key:
     file: ./backend/secrets/serviceAccountKey.json

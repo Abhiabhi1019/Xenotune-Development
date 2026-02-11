@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+venv/
+.env
+
+# Secrets
+secrets/*.json
+
+# Runtime output (HUGE)
+output/
+*.wav
+*.mp3
+*.mid
+
+# Soundfonts (never copy from host)
+soundfonts/
+FluidR3_GM/
+*.sf2
+
+# Build/cache
+build/
+dist/
+.cache/
+
+# Docker
+docker-compose*.yml
