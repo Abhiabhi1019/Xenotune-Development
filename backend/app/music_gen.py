@@ -19,7 +19,10 @@ FFMPEG_PATH = "ffmpeg"
 FLUIDSYNTH_PATH = "fluidsynth"
 # FFMPEG_PATH = "ffmpeg"
 # FLUIDSYNTH_PATH = "fluidsynth"
-SOUNDFONT_PATH = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
+SOUNDFONT_PATH = os.getenv(
+    "SOUNDFONT_PATH",
+    "/soundfonts/FluidR3_GM.sf2"
+)
 # BGM_PATH = os.path.join("assets", "bgm.mp3")
 
 # --- Section Lengths ---
