@@ -11,10 +11,10 @@ __pycache__/
 venv/
 .env
 
-# Secrets (only secrets)
+# Secrets ONLY
 secrets/*.json
 
-# Audio output
+# Runtime output
 output/
 *.wav
 *.mp3
