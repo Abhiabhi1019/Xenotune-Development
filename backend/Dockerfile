@@ -49,7 +49,7 @@ RUN mkdir -p /app/data
 
 COPY --from=builder /python-deps /usr/local/lib/python3.11/site-packages
 COPY app/ /app/app
-COPY  ./config.json /app/data/config.json
+COPY  config.json /app/data/config.json
 
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
